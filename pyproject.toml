@@ -3,7 +3,7 @@ name = "shaped-target-clickhouse"
 version = "0.2.5"
 description = "`target-clickhouse` is a Singer target for clickhouse, built with the Meltano Singer SDK."
 authors = [{ name = "Ben Theunissen" }]
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.11,<3.14"
 readme = "README.md"
 license = "Apache-2.0"
 keywords = [
@@ -12,17 +12,15 @@ keywords = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "singer-sdk>=0.40,<0.54",
-    "clickhouse-sqlalchemy",
-    "simplejson>=3.19.2,<4",
-    "pendulum>=2.1,<4",
-    "packaging>=24.0",
+    "singer-sdk>=0.54.9,<0.55",
+    "clickhouse-sqlalchemy>=0.3.2,<0.4",
+    "simplejson>=4.2.0,<5",
+    "pendulum>=3.3.0,<4",
 ]
 
 [project.optional-dependencies]
@@ -33,62 +31,59 @@ target-clickhouse = "target_clickhouse.target:TargetClickhouse.cli"
 
 [dependency-groups]
 dev = [
-    "pytest>=9,<10",
-    "tox>=3.25.0,<4",
-    "ruff>=0.1.3,<0.2",
-    "singer-sdk[testing]>=0.40,<0.54",
-    "types-simplejson>=3.19.0.1,<4",
-    "types-setuptools>=69.2.0.20240317,<70",
-    "pre-commit>=3.5.0,<4",
+    "pytest>=9.1.1,<10",
+    "ruff>=0.17.2,<0.18",
+    "singer-sdk[testing]>=0.54.9,<0.55",
+    "types-simplejson>=4.2.0.20261006,<5",
+    "types-setuptools>=84.0.0.20261006,<85",
+    "pre-commit>=4.7.0,<5",
 ]
-
-[tool.uv.sources]
-clickhouse-sqlalchemy = { git = "https://github.com/xzkostyan/clickhouse-sqlalchemy.git", rev = "7ad94b0" }
 
 [tool.uv.build-backend]
 module-name = ["target_clickhouse"]
 module-root = ""
 
 [build-system]
-requires = ["uv_build>=0.9.27,<0.10.0"]
+requires = ["uv_build>=0.13.5,<0.14.0"]
 build-backend = "uv_build"
 
 [tool.ruff]
+src = ["target_clickhouse"]
+
+[tool.ruff.lint]
 ignore = [
-    "ANN001", # missing-return-type
-    "ANN101",  # missing-type-self
-    "ANN102",  # missing-type-cls
-    "ANN201",  # missing-return-type-doc
-    "D100", # Missing docstring in public module
-    "D101", # Missing docstring in public class
-    "D103", # Missing docstring in public function
-    "D401", # First line should be in imperative mood
-    "D407", # Missing dashed underline after section
-    "FA100", # Forbidden import
-    "S101", # Use of assert detected
-    "G004", # Logging statement uses string formatting
-    "TCH002",
-    "TCH003",
+    "ANN001",
+    "ANN201",
+    "D100",
+    "D101",
+    "D103",
+    "D401",
+    "D407",
+    "FA100",
+    "S101",
+    "G004",
+    "TC002",
+    "TC003",
     "ANN202",
     "C901",
-    "TRY201", # Use of bare 'except'
+    "CPY001",
+    "TRY201",
     "D417",
     "ANN003",
     "FBT001",
     "FBT002",
+    "UP042",
 ]
 select = ["ALL"]
-src = ["target_clickhouse"]
-target-version = "py37"
 
-[tool.ruff.flake8-annotations]
+[tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["target_clickhouse"]
 
-[tool.ruff.pylint]
-max-args=6
+[tool.ruff.lint.pylint]
+max-args = 6
 
 [[tool.mypy.overrides]]
 disable_error_code = ["name-defined"]

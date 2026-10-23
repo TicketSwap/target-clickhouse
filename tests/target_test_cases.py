@@ -1,7 +1,7 @@
-import datetime
+import datetime as dt
 import logging
 
-from singer_sdk.testing.suites import TestSuite
+from singer_sdk.testing.suites import SingerTestSuite
 from sqlalchemy import text
 
 from tests.conftest import TargetClickhouseFileTestTemplate
@@ -18,9 +18,9 @@ class TestDateTypeTargetClickhouse(TargetClickhouseFileTestTemplate):
         """Validate the data in the target."""
         connector = self.target.default_sink_class.connector_class(self.target.config)
         records = {
-            1: datetime.date(2024, 3, 15),
-            2: datetime.date(2024, 3, 16),
-            3: datetime.date(1920, 3, 16),
+            1: dt.date(2024, 3, 15),
+            2: dt.date(2024, 3, 16),
+            3: dt.date(1920, 3, 16),
             4: None,
         }
 
@@ -36,7 +36,7 @@ class TestDateTypeTargetClickhouse(TargetClickhouseFileTestTemplate):
             ), f"For record {record_id}, expected {expected_date}, got {record[1]}"
 
 
-custom_target_test_suite = TestSuite(
+custom_target_test_suite = SingerTestSuite(
     kind="target",
     tests=[
         TestDateTypeTargetClickhouse,

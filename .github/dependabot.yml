@@ -11,21 +11,15 @@ updates:
       interval: "daily"
       timezone: "America/New_York"
       time: "09:00"
-    reviewers:
-      - "btheunissen"
   - package-ecosystem: "pip"
     directory: "/.github/workflows"
     schedule:
       interval: "daily"
       timezone: "America/New_York"
       time: "09:00"
-    reviewers:
-      - "btheunissen"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       timezone: "America/New_York"
       time: "09:00"
-    reviewers:
-      - "btheunissen"

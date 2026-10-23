@@ -2,24 +2,21 @@
 
 from __future__ import annotations
 
+import datetime as dt
+from collections.abc import Iterable
 from logging import Logger
-from typing import Any, Iterable
+from typing import Any
 
 import jsonschema.exceptions as jsonschema_exceptions
 import simplejson as json
 import sqlalchemy
 from pendulum import now
-from singer_sdk.helpers._compat import (
-    date_fromisoformat,
-    datetime_fromisoformat,
-    time_fromisoformat,
-)
 from singer_sdk.helpers._typing import (
-    DatetimeErrorTreatmentEnum,
     get_datelike_property_type,
     handle_invalid_timestamp_in_record,
 )
-from singer_sdk.sinks import SQLSink
+from singer_sdk.helpers.conform import DatetimeErrorTreatmentEnum
+from singer_sdk.sql import SQLSink
 from sqlalchemy.sql.expression import bindparam
 
 from target_clickhouse.connectors import ClickhouseConnector
@@ -204,7 +201,7 @@ class ClickhouseSink(SQLSink):
                 try:
                     if value is not None:
                         if datelike_type == "time":
-                            date_val = time_fromisoformat(date_val)
+                            date_val = dt.time.fromisoformat(date_val)
                         elif datelike_type == "date":
                             # Trim time value from date fields.
                             if "T" in date_val:
@@ -215,9 +212,9 @@ class ClickhouseSink(SQLSink):
                                     key,
                                     date_val,
                                 )
-                            date_val = date_fromisoformat(date_val)
+                            date_val = dt.date.fromisoformat(date_val)
                         else:
-                            date_val = datetime_fromisoformat(date_val)
+                            date_val = dt.datetime.fromisoformat(date_val)
                 except ValueError as ex:
                     date_val = handle_invalid_timestamp_in_record(
                         record,

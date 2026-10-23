@@ -5,17 +5,15 @@ import typing
 from typing import TYPE_CHECKING
 
 import sqlalchemy.types
+import urllib3
 from clickhouse_sqlalchemy import (
     Table,
 )
 from clickhouse_sqlalchemy import (
     types as clickhouse_sqlalchemy_types,
 )
-from importlib.metadata import version as get_version
-
-from packaging.version import Version
 from singer_sdk import typing as th
-from singer_sdk.connectors import SQLConnector
+from singer_sdk.sql import SQLConnector
 from sqlalchemy import Column, MetaData, create_engine
 
 from target_clickhouse.engine_class import SupportedEngines, create_engine_wrapper
@@ -52,9 +50,6 @@ class ClickhouseConnector(SQLConnector):
                 secure_options = f"protocol=https&verify={config['verify']}"
 
                 if not config["verify"]:
-                    # disable urllib3 warning
-                    import urllib3
-
                     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             else:
                 secure_options = "protocol=http"
@@ -102,19 +97,19 @@ class ClickhouseConnector(SQLConnector):
 
         # Clickhouse does not support the DECIMAL type without providing precision,
         # so we need to use the FLOAT type.
-        if type(sql_type) == sqlalchemy.types.DECIMAL:
+        if type(sql_type) is sqlalchemy.types.DECIMAL:
             sql_type = typing.cast(
-                sqlalchemy.types.TypeEngine,
+                "sqlalchemy.types.TypeEngine",
                 sqlalchemy.types.FLOAT(),
             )
-        elif type(sql_type) == sqlalchemy.types.INTEGER:
+        elif type(sql_type) is sqlalchemy.types.INTEGER:
             sql_type = typing.cast(
-                sqlalchemy.types.TypeEngine,
+                "sqlalchemy.types.TypeEngine",
                 clickhouse_sqlalchemy_types.Int64(),
             )
-        elif type(sql_type) == sqlalchemy.types.DATE:
+        elif type(sql_type) is sqlalchemy.types.DATE:
             sql_type = typing.cast(
-                sqlalchemy.types.TypeEngine,
+                "sqlalchemy.types.TypeEngine",
                 clickhouse_sqlalchemy_types.Nullable(clickhouse_sqlalchemy_types.Date32)
                 if not is_primary_key
                 else clickhouse_sqlalchemy_types.Date32,
@@ -168,14 +163,7 @@ class ClickhouseConnector(SQLConnector):
             table_name = self.config.get("table_name")
 
         # Do not set schema, as it is not supported by Clickhouse.
-        # Get the version of sqlalchemy
-        sqlalchemy_version = get_version("sqlalchemy")
-        parsed_version = Version(sqlalchemy_version)
-        if parsed_version < Version("2.0"):
-            # Code for sqlalchemy 1.0 compatibility.
-            meta = MetaData(schema=None, bind=self._engine)
-        else:
-            meta = MetaData(schema=None)
+        meta = MetaData(schema=None)
 
         columns: list[Column] = []
         primary_keys = primary_keys or []
@@ -275,7 +263,8 @@ class ClickhouseConnector(SQLConnector):
             ),
         )
         return sqlalchemy.DDL(
-            ("ALTER TABLE %(table_name)s ADD COLUMN IF NOT EXISTS %(create_column_clause)s"),
+            "ALTER TABLE %(table_name)s "
+            "ADD COLUMN IF NOT EXISTS %(create_column_clause)s",
             {
                 "table_name": table_name,
                 "create_column_clause": create_column_clause,
@@ -303,10 +292,8 @@ class ClickhouseConnector(SQLConnector):
         """
         if self.config.get("cluster_name"):
             return sqlalchemy.DDL(
-                (
-                    "ALTER TABLE %(table_name)s ON CLUSTER %(cluster_name)s "
-                    "MODIFY COLUMN %(column_name)s %(column_type)s",
-                ),
+                "ALTER TABLE %(table_name)s ON CLUSTER %(cluster_name)s "
+                "MODIFY COLUMN %(column_name)s %(column_type)s",
                 {
                     "table_name": table_name,
                     "column_name": column_name,
